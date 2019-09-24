@@ -1,9 +1,11 @@
-use clap::{App, Arg, SubCommand};
-use kube::{api::Api, client::APIClient};
-use env::{run_env, env_subcommand};
-use kube::get_kube_client;
+use clap::{App, Arg};
+use kube::api::Api;
 
-const DEFAULT_KUBE_CONFIG: &str = "~/.kube/config";
+pub mod kubernetes;
+pub mod cmd;
+use kubernetes::client::get_kube_client;
+use cmd::environment::{env_subcommand, run_env};
+
 const DEFAULT_KUBE_NAMESPACE: &str = "default";
 
 fn main() {
@@ -28,9 +30,12 @@ fn main() {
         .get_matches();
 
     if matches.is_present("env") {
-        run_env();
+         match run_env(){
+             Ok(()) => println!("done!"),
+             Err(e) => println!("error! {}", e)
+         };
     } else {
-        let kube_client = get_kube_client();
+        let kube_client = get_kube_client(None);
         let deployments_resource = Api::v1Pod(kube_client)
             .within(DEFAULT_KUBE_NAMESPACE);
         match deployments_resource.get("service") {
