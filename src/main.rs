@@ -29,8 +29,11 @@ fn main() {
         )
         .subcommand(env_subcommand())
         .get_matches();
-    cli::route(matches);
-    println!("Done");
+        
+    match cli::route(matches) {
+        Ok(()) => {},
+        Err(e) => println!("{}", e),
+    };
     // match matches.subcommand() {
     //     Some("env") => run_env(matches.subcommand("env")),
     //     Some(name) => println!("Invalid command {}", name),

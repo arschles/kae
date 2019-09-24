@@ -1,6 +1,6 @@
-use clap::{App, SubCommand};
+use clap::{ArgMatches, App, SubCommand};
 
-pub fn run_env<'a, 'b>(app: App<'a, 'b>) -> Result<(), &'static str> {
+pub fn run<'a>(app: &ArgMatches<'a>) -> Result<(), &'static str> {
     print!("env was called!");
     return Ok(());
 }
