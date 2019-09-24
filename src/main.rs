@@ -1,10 +1,11 @@
 use clap::{App, Arg};
-use kube::api::Api;
+// use kube::api::Api;
 
-pub mod kubernetes;
-pub mod cmd;
-use kubernetes::client::get_kube_client;
-use cmd::environment::{env_subcommand, run_env};
+mod kubernetes;
+mod cmd;
+mod cli;
+// use kubernetes::client::get_kube_client;
+use cmd::environment::{env_subcommand};
 
 const DEFAULT_KUBE_NAMESPACE: &str = "default";
 
@@ -28,19 +29,20 @@ fn main() {
         )
         .subcommand(env_subcommand())
         .get_matches();
-
-    if matches.is_present("env") {
-         match run_env(){
-             Ok(()) => println!("done!"),
-             Err(e) => println!("error! {}", e)
-         };
-    } else {
-        let kube_client = get_kube_client(None);
-        let deployments_resource = Api::v1Pod(kube_client)
-            .within(DEFAULT_KUBE_NAMESPACE);
-        match deployments_resource.get("service") {
-            Ok(depl) => println!("got deployments {:?}", depl.spec.containers),
-            Err(err) => println!("error getting deployments: {}", err),
-        };
-    }
+    cli::route(matches);
+    println!("Done");
+    // match matches.subcommand() {
+    //     Some("env") => run_env(matches.subcommand("env")),
+    //     Some(name) => println!("Invalid command {}", name),
+    //     None => println!("You need to specify a command!"),
+    // }
+    // else {
+    //     let kube_client = get_kube_client(None);
+    //     let deployments_resource = Api::v1Pod(kube_client)
+    //         .within(DEFAULT_KUBE_NAMESPACE);
+    //     match deployments_resource.get("service") {
+    //         Ok(depl) => println!("got deployments {:?}", depl.spec.containers),
+    //         Err(err) => println!("error getting deployments: {}", err),
+    //     };
+    // }
 }
