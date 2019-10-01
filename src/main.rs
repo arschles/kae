@@ -1,11 +1,10 @@
-use clap::{App, Arg};
+use clap::{App, Arg, SubCommand};
 // use kube::api::Api;
 
 mod cli;
 mod cmd;
 mod kubernetes;
 // use kubernetes::client::get_kube_client;
-use cmd::environment::env_subcommand;
 
 fn main() {
     let app = App::new("kae")
@@ -25,11 +24,16 @@ fn main() {
                 .multiple(true)
                 .help("Sets the level of verbosity"),
         )
-        .subcommand(env_subcommand());
+        .subcommand(
+            SubCommand::with_name("env")
+                .subcommand(SubCommand::with_name("get"))
+                .subcommand(SubCommand::with_name("set")),
+        );
     let matches = app.clone().get_matches();
     match cli::route(matches) {
         Ok(()) => {}
-        Err(_) => {
+        Err(s) => {
+            print!("{}!\n\n", s);
             app.clone().print_long_help();
         }
     };
