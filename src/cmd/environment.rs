@@ -9,14 +9,26 @@ pub fn route<'a>(matches: &ArgMatches<'a>) -> Result<(), &'static str> {
             "set" => set(sub_matches),
             _ => Err("Unknown command"),
         },
-        None => Err("Unknown command"),
+        _ => Err("Unknown command"),
     }
 }
 
 fn get<'a>(matches: &ArgMatches<'a>) -> Result<(), &'static str> {
-    Ok(())
+    match matches.value_of("name") {
+        Some(name) => {
+            println!("Getting {}", name);
+            Ok(())
+        }
+        _ => Err("Missing args!"),
+    }
 }
 
 fn set<'a>(matches: &ArgMatches<'a>) -> Result<(), &'static str> {
-    Ok(())
+    match (matches.value_of("name"), matches.value_of("value")) {
+        (Some(name), Some(val)) => {
+            println!("Setting {} = {}", name, val);
+            Ok(())
+        }
+        _ => Err("Missing args!"),
+    }
 }

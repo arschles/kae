@@ -29,14 +29,31 @@ fn main() {
                 .subcommand(
                     SubCommand::with_name("get")
                         .about("Gets an environment variable")
-                        .arg(Arg::with_name("name").index(1))
-                        .arg(Arg::with_name("value").index(2)),
+                        .arg(
+                            Arg::with_name("name")
+                                .long("name")
+                                .required(true)
+                                .index(1)
+                                .takes_value(true),
+                        ),
                 )
                 .subcommand(
                     SubCommand::with_name("set")
                         .about("Sets and environment variable")
-                        .arg(Arg::with_name("name").index(1))
-                        .arg(Arg::with_name("value").index(2)),
+                        .arg(
+                            Arg::with_name("name")
+                                .index(1)
+                                .long("name")
+                                .required(true)
+                                .takes_value(true),
+                        )
+                        .arg(
+                            Arg::with_name("value")
+                                .index(2)
+                                .long("value")
+                                .required(true)
+                                .takes_value(true),
+                        ),
                 )
                 .about("Interacts with environment variables"),
         );
