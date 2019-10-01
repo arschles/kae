@@ -1,16 +1,14 @@
 use clap::{App, Arg};
 // use kube::api::Api;
 
-mod kubernetes;
-mod cmd;
 mod cli;
+mod cmd;
+mod kubernetes;
 // use kubernetes::client::get_kube_client;
-use cmd::environment::{env_subcommand};
-
-const DEFAULT_KUBE_NAMESPACE: &str = "default";
+use cmd::environment::env_subcommand;
 
 fn main() {
-    let matches = App::new("kae")
+    let app = App::new("kae")
         .version("1.0")
         .author("Aaron S. <aaron@ecomaz.net>")
         .about("Kubernetes App Engine")
@@ -27,12 +25,13 @@ fn main() {
                 .multiple(true)
                 .help("Sets the level of verbosity"),
         )
-        .subcommand(env_subcommand())
-        .get_matches();
-        
+        .subcommand(env_subcommand());
+    let matches = app.clone().get_matches();
     match cli::route(matches) {
-        Ok(()) => {},
-        Err(e) => println!("{}", e),
+        Ok(()) => {}
+        Err(_) => {
+            app.clone().print_long_help();
+        }
     };
     // match matches.subcommand() {
     //     Some("env") => run_env(matches.subcommand("env")),
