@@ -43,14 +43,14 @@ fn main() {
                         .arg(
                             Arg::with_name("name")
                                 .index(1)
-                                .long("name")
+                                .short("name")
                                 .required(true)
                                 .takes_value(true),
                         )
                         .arg(
                             Arg::with_name("value")
                                 .index(2)
-                                .long("value")
+                                .short("value")
                                 .required(true)
                                 .takes_value(true),
                         ),
