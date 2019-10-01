@@ -26,8 +26,19 @@ fn main() {
         )
         .subcommand(
             SubCommand::with_name("env")
-                .subcommand(SubCommand::with_name("get"))
-                .subcommand(SubCommand::with_name("set")),
+                .subcommand(
+                    SubCommand::with_name("get")
+                        .about("Gets an environment variable")
+                        .arg(Arg::with_name("name").index(1))
+                        .arg(Arg::with_name("value").index(2)),
+                )
+                .subcommand(
+                    SubCommand::with_name("set")
+                        .about("Sets and environment variable")
+                        .arg(Arg::with_name("name").index(1))
+                        .arg(Arg::with_name("value").index(2)),
+                )
+                .about("Interacts with environment variables"),
         );
     let matches = app.clone().get_matches();
     match cli::route(matches) {
