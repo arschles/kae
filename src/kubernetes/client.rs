@@ -1,6 +1,7 @@
 use crate::cmd::result::Res;
 use http::request::Request;
-use kube::{client::APIClient, config};
+use kube::{client::APIClient, config, Result as KubeResult};
+use serde::de::DeserializeOwned;
 
 // const DEFAULT_CONFIG_FILE: &str = "~/.kube/config";
 pub const DEFAULT_NAMESPACE: &str = "default";
@@ -20,8 +21,19 @@ pub fn get_kube_client() -> APIClient {
 }
 
 pub fn read_then_write<T>(
-    reader: fn(&str, &str, T) -> Request<Vec<u8>>,
-    writer: fn(&str, &str, &T) -> Request<Vec<u8>>,
-) -> Res {
-    Ok(())
+    cl: kube::client::APIClient,
+    reader: fn() -> Request<Vec<u8>>,
+    updater: fn(T) -> Result<T, String>,
+) -> Result<T, String>
+where
+    T: DeserializeOwned,
+{
+    let req = reader();
+    let result: KubeResult<T> = cl.request(req);
+    // TODO: check if it's completely missing and then just
+    // create it if needed
+    match result {
+        Ok(res) => updater(res),
+        Err(e) => Err(e.to_string()),
+    }
 }
