@@ -1,6 +1,6 @@
 use kube::{client::APIClient, config};
 
-const DEFAULT_CONFIG_FILE: &str = "~/.kube/config";
+// const DEFAULT_CONFIG_FILE: &str = "~/.kube/config";
 pub const DEFAULT_NAMESPACE: &str = "default";
 
 fn load_kube_config() -> kube::Result<kube::config::Configuration> {
