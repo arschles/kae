@@ -6,6 +6,7 @@ use k8s_openapi::api::core::v1::CreateNamespacedConfigMapOptional;
 use k8s_openapi::api::core::v1::{ConfigMap, Secret};
 use k8s_openapi::apimachinery::pkg::apis::meta::v1::ObjectMeta;
 use kube::api::{Api, Object, PostParams};
+use kube::Result as KubeResult;
 use serde_json::{json, to_vec};
 use std::collections::BTreeMap;
 
@@ -47,6 +48,7 @@ fn get<'a>(matches: &ArgMatches<'a>) -> Res {
 fn set<'a>(matches: &ArgMatches<'a>) -> Res {
     match (matches.value_of("name"), matches.value_of("value")) {
         (Some(name), Some(val)) => {
+            println!("{} = {}", name, val);
             let cl = client::get_kube_client();
             let mut vals: BTreeMap<String, String> = BTreeMap::new();
             vals.insert(String::from(name), String::from(val));
@@ -66,7 +68,7 @@ fn set<'a>(matches: &ArgMatches<'a>) -> Res {
                     initializers: None,
                     labels: None,
                     managed_fields: None,
-                    name: Some(String::from(name)),
+                    name: Some(String::from(client::DEFAULT_APP_NAME)),
                     namespace: Some(String::from(client::DEFAULT_NAMESPACE)),
                     owner_references: None,
                     resource_version: None,
@@ -74,16 +76,18 @@ fn set<'a>(matches: &ArgMatches<'a>) -> Res {
                     uid: None,
                 }),
             };
-            ConfigMap::create_namespaced_config_map(
+            let create_res = ConfigMap::create_namespaced_config_map(
                 client::DEFAULT_NAMESPACE,
                 &config_map,
                 CreateNamespacedConfigMapOptional::default(),
             );
-            // match config_map.create(&PostParams::default()) {
-            //     Ok(_) => Ok(()),
-            //     Err(e) => Err(e.kind().to_string()),
-            // }
-            Ok(())
+            match create_res {
+                Ok((req, _)) => {
+                    let cm_res: KubeResult<ConfigMap> = cl.request(req);
+                    cm_res.map(|_| ()).map_err(|e| e.to_string())
+                }
+                Err(e) => Err(e.to_string()),
+            }
         }
         _ => err_res("Missing args!"),
     }

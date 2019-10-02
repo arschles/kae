@@ -1,7 +1,5 @@
-mod cli;
-mod cmd;
-use cmd::result::Res;
-mod kubernetes;
+use kae::cli;
+use kae::cmd::result::Res;
 
 fn main() -> Res {
     let app = cli::app();
