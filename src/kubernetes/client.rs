@@ -1,12 +1,17 @@
-use kube::client::APIClient;
+use kube::{client::APIClient, config};
 
-const DEFAULT_KUBE_CONFIG: &str = "~/.kube/config";
+const DEFAULT_CONFIG_FILE: &str = "~/.kube/config";
+pub const DEFAULT_NAMESPACE: &str = "default";
 
-pub fn get_kube_client(opt_filename: Option<&str>) -> APIClient{
-    let filename = opt_filename.unwrap_or(DEFAULT_KUBE_CONFIG);
-    println!("Using kube config {}", filename);
-    let cfg = kube::config::incluster_config()
-        .or_else(|_| kube::config::load_kube_config())
-        .expect("Failed to load kube config");
+fn load_kube_config() -> kube::Result<kube::config::Configuration> {
+    // If env var is set, use in cluster config
+    if std::env::var("KUBERNETES_PORT").is_ok() {
+        return config::incluster_config();
+    }
+    config::load_kube_config()
+}
+
+pub fn get_kube_client() -> APIClient {
+    let cfg = load_kube_config().expect("Couldn't load kube config");
     APIClient::new(cfg)
 }
