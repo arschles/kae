@@ -38,6 +38,5 @@ pub fn route(o: Opt) -> Res {
     match o.cmds {
         SubCommands::Env(Env::Get { name }) => environment::get(name),
         SubCommands::Env(Env::Set { name, val }) => environment::set(name, val),
-        _ => err_res("Invalid command"),
     }
 }
