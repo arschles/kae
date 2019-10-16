@@ -23,17 +23,34 @@ pub fn get_kube_client() -> APIClient {
 pub fn read_then_write<T>(
     cl: kube::client::APIClient,
     reader: fn() -> Request<Vec<u8>>,
+    creater: fn() -> Request<Vec<u8>>,
     updater: fn(T) -> Result<T, String>,
 ) -> Result<T, String>
 where
     T: DeserializeOwned,
 {
-    let req = reader();
-    let result: KubeResult<T> = cl.request(req);
-    // TODO: check if it's completely missing and then just
-    // create it if needed
-    match result {
-        Ok(res) => updater(res),
-        Err(e) => Err(e.to_string()),
-    }
+    let read_req = reader();
+    let read_res: KubeResult<T> = cl.request(read_req);
+    let ret: Result<T, String> = match read_res {
+        Ok(res) => {
+            let res: Result<T, String> = updater(res);
+            res
+        }
+        // TODO: probably better to check for a specific error message
+        // indicating the thing wasn't there...
+        Err(_) => {
+            let req = creater();
+            match cl.request(req) {
+                Ok(t) => {
+                    let updated: Result<T, String> = updater(t);
+                    updated
+                }
+                Err(e) => {
+                    let err: Result<T, String> = Err(e.to_string());
+                    err
+                }
+            }
+        }
+    };
+    ret
 }

@@ -9,7 +9,7 @@ use kube::Result as KubeResult;
 use serde_json::{json, to_vec};
 use std::collections::BTreeMap;
 
-pub fn get<'a>(name: String) -> Res {
+pub fn get(name: String) -> Res {
     let cl = client::get_kube_client();
     let config_map_res = Api::v1ConfigMap(cl)
         .within(client::DEFAULT_NAMESPACE)
@@ -27,11 +27,11 @@ pub fn get<'a>(name: String) -> Res {
     }
 }
 
-pub fn set<'a>(name: String, val: String) -> Res {
+pub fn set(name: String, val: String) -> Res {
     println!("{} = {}", name, val);
     let cl = client::get_kube_client();
     let mut vals: BTreeMap<String, String> = BTreeMap::new();
-    vals.insert(String::from(name), String::from(val));
+    vals.insert(name, val);
     // let config_map = Api::v1ConfigMap(cl).within(client::DEFAULT_NAMESPACE);
     let config_map = ConfigMap {
         binary_data: None,
